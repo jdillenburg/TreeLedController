@@ -92,23 +92,23 @@ for your thing.  You should then delete TreeController_dec27a.ino so there's onl
  ├── TreeController_dec27a.ino       => main Arduino file
  ├── schematics.png                  => an image of the wiring diagram
  ├── effect.h                        => Base class for all effects
-     ├── E131.h                          => E13.1 Streaming ACN decoder, header
-     ├── E131.cpp                        => E13.1 Streaming ACN decoder, code
-     ├── effect.h                        => Base class for all effects, header
-         ├── e131effect.h                    => E13.1 streaming ACN effect
-         ├── effect.cpp                      => Base class for all effects, code
-             ├── plasma.h                        => Plasma effect, subclass of Effect
-             ├── rainbow.h                       => Rainbow effect
-             ├── lightning.h                     => Lightning effect
-             ├── sweep.h                         => Sweep effect
-             ├── confetti.h                      => Confetti effect
-             ├── pattern.h                       => Simple pattern effect
-             ├── fire.h                          => Fire effect
-             ├── blend.h                         => Blend effect
-             ├── glitter.h                       => Adds twinkle effects to other effects
-             ├── colored.h                       => All one color
-             └── ReadMe.adoc                     => this file
-             ....
+ ├── E131.h                          => E13.1 Streaming ACN decoder, header
+ ├── E131.cpp                        => E13.1 Streaming ACN decoder, code
+ ├── effect.h                        => Base class for all effects, header
+ ├── e131effect.h                    => E13.1 streaming ACN effect
+ ├── effect.cpp                      => Base class for all effects, code
+ ├── plasma.h                        => Plasma effect, subclass of Effect
+ ├── rainbow.h                       => Rainbow effect
+ ├── lightning.h                     => Lightning effect
+ ├── sweep.h                         => Sweep effect
+ ├── confetti.h                      => Confetti effect
+ ├── pattern.h                       => Simple pattern effect
+ ├── fire.h                          => Fire effect
+ ├── blend.h                         => Blend effect
+ ├── glitter.h                       => Adds twinkle effects to other effects
+ ├── colored.h                       => All one color
+ └── ReadMe.adoc                     => this file
+ ....
 
 === License
 This project is released under a public License.
