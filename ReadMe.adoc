@@ -1,0 +1,137 @@
+: Author: john_dillenburg
+: Email: john _at_ dillenburg.org (substitute @ for " _at_ ")
+: Date : 03 / 12 / 2021
+: Revision : 1
+: License : Public Domain
+
+= Project : Arduino Nano 33 IoT 12V WS2811 LED Strip Controller
+
+Accompanying video file showing the LED effects: https://photos.app.goo.gl/VuEwcWQFLXqoLUUF8
+
+This project uses the Arduino Nano 33 IoT, the Arduino IoT Cloud, and optionally streaming ACN or
+Alexa to control 12 volt WS2811 LEDs.  There are 4 connectors for 4 LED strips and each strip can chain
+together hundreds of LEDs.  The default code sends the same effect to all four strips but this
+can be easily customized in the main TreeController_dec27a.ino file.  The Arduino IoT Remote app
+can be used to control your lights from your mobile device.  You can also link your IoT cloud account
+to Alexa and use it for voice control of your LEDs.
+
+== Step 1 : Installation
+
+Here is how to install this project.
+
+1. You will need an Arduino IoT cloud account.  Goto www.arduino.cc->Cloud->IoT Cloud.
+2. Register your Nano 33 IoT with your account using the Devices tab of IoT Cloud.  Click "Add Device" and follow the instructons.
+3. Create a "Thing".  I named mine "TreeController" and that's why the main .ino file is
+  named TreeController_dec27a.ino.
+4. You'll need to add the following Variables to your thing.  There's no easy way to "import" these from my project so
+    you will need to use the IoT Cloud Thing setup controls to add these one at a time.   I used "tree_" prefix
+    for the names because this is what Alexa will respond to when you use voice control.  If you do not plan to
+    link your Arduino account to Alexa, then you can simplify the names.  I have several of these controller, however,
+    so I use a different prefix for each controller "roof_", "counter_", etc.  "Alexa, turn on counter color".
+
+      a. int bpm               - beats per minute for the plasma effect
+      b. CloudColor color1     - color for effects that need multiple colors
+      c. CloudColor color2     - "   "
+      d. CloudColor color3     - "   "
+      e. int numLedsOnPin2     - number of LEDS connected to pin 2 of Nano through the level shifter (blue wire)
+      f. int numLedsOnPin3     -   "                          "  3  (green wire)
+      g. int numLedsOnPin4     -   "                          "  4  (yellow wire)
+      h. int numLedsOnPin5     -   "                          "  5  (red wire)
+      i. int rotateSpeed       - changes per second (1 to 1, 000)
+      j. CloudTime runningTime - read - only - milliseconds since start up - used to determine "online" status
+      k. CloudDimmedLight  tree_blend     - controls blend effect
+      l. CloudColoredLight tree_color     - controls the all - one - color effect
+      m. CloudDimmedLight  tree_confetti  - controls confetti effect
+      n. CloudLight        tree_glitter   - adds glitter effect
+      o. CloudDimmedLight  tree_lightning - controls lightning effect
+      p. CloudDimmedLight  tree_pattern   - controls pattern effect
+      q. CloudColoredLight tree_plasma    - controls plasma effect
+      r. CloudDimmedLight  tree_rainbow   - controls rainbow effect
+      s. CloudDimmedLight  tree_sacn      - controls stream ACN E13.1 effect
+      t. CloudDimmedLight  tree_sweep     - controls sweep effect
+      u. int universe                     - universe number for E13.1 streaming ACN
+5. Link your Thing to your Nano 33 IoT device.  There is an "attach" button in the IoT cloud thing setup.
+6. Go to the Sketch tab and then "Open full edtor".  The simple editor cannot import.
+7. Import the sketch using the import button.  You'll need to copy paste the imported .ino file to the
+one provided by the IoT cloud.
+
+
+== Step 2 : Assemble the circuit
+
+Photo of assembled circuit: https://photos.app.goo.gl/EMdDA4vWgxhGjG2t7
+
+The circuit assumes you will have a 12V DC power supply for your WS2811 LED strip(s).  I conected ground, +12V
+and the data line through JST connectors.   If installing outdoors, I suggest you use waterproof automotive
+connectors instead.  Power injection will also be needed if you have more than a dozen or so LEDs or else
+the far away LEDs will be dimmer due to voltage drop across the LED strip.  I've seen 12V WS2811 LEDs work
+with as little as 7V, though.
+
+Assemble the circuit following the diagram schematic.png attached to the sketch.  1K Ohm pull - down resistors are
+used on the level shifter output.  My oscilloscope tells me that's the best way to reduce inductive feedback
+on the data line going to the LEDs.  220 Ohm resistors are also placed in series withthe data line.  This also
+reduces noise and prevents the LEDs from flickering, especially when turned off.
+
+I used a LM2596 DC - to - DC voltage buck converter to step down 12V to 5V for use with the level shifter. These
+converters are probably overkill (3A output!) for running just one IC but my experimenting shows they work
+the best. You will need to adjust the potentiometer on the converters to get the 5V output required.  Mine didn't
+come set to 5V.
+
+Note that I left off the Cloud Connected status LED that goes to PIN 12 of the Nano.  I plan on adding that later
+after I put this circuit board into an enclosure.  
+
+== Step 3 : Load the code
+
+Upload the code contained in this sketch on to your board using the upload button in your thing's code editor.
+You'll need to copy/paste the code contained in TreeController_dec27a.ino to the .ino that is auto-created
+for your thing.  You should then delete TreeController_dec27a.ino so there's only only main .ino file.
+
+=== Folder structure
+
+ ....
+ TreeController_dec27a                => Arduino sketch folder
+ ├── TreeController_dec27a.ino       => main Arduino file
+ ├── schematics.png                  => an image of the wiring diagram
+ ├── effect.h                        => Base class for all effects
+     ├── E131.h                          => E13.1 Streaming ACN decoder, header
+     ├── E131.cpp                        => E13.1 Streaming ACN decoder, code
+     ├── effect.h                        => Base class for all effects, header
+         ├── e131effect.h                    => E13.1 streaming ACN effect
+         ├── effect.cpp                      => Base class for all effects, code
+             ├── plasma.h                        => Plasma effect, subclass of Effect
+             ├── rainbow.h                       => Rainbow effect
+             ├── lightning.h                     => Lightning effect
+             ├── sweep.h                         => Sweep effect
+             ├── confetti.h                      => Confetti effect
+             ├── pattern.h                       => Simple pattern effect
+             ├── fire.h                          => Fire effect
+             ├── blend.h                         => Blend effect
+             ├── glitter.h                       => Adds twinkle effects to other effects
+             ├── colored.h                       => All one color
+             └── ReadMe.adoc                     => this file
+             ....
+
+=== License
+This project is released under a public License.
+
+=== Contributing
+To contribute to this project please contact : john _at_ dillenburg.org
+
+=== BOM
+
+|===
+| Part name             | Quantity | Cost (US$) | Link
+| Solderable breadboard | 1        | $2.50      | https://circuitsetup.us/product/solderable-breadboard-pcb-for-arduino-esp8266-esp32-prototyping-3-78x2-2-96x56mm-5-pack/
+| Nano 33 IoT           | 1        | $18.40     | https : //store-usa.arduino.cc/products/arduino-nano-33-iot
+| LM2596 DC Converter   | 1        | $1.70      | https : //www.amazon.com/gp/product/B07VVXF7YX/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1
+| 1K resistor           | 4        | $0.06      | https : //www.amazon.com/EDGELEC-Resistor-Tolerance-Multiple-Resistance/dp/B07QG1V4YL/ref=sr_1_1_sspa?crid=2H4BDBDOIL2PJ&keywords=1k+resistor&qid=1640705369&sprefix=1k+resistor%2Caps%2C117&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUFaVEk4SURGMVhKRTImZW5jcnlwdGVkSWQ9QTEwMjQ0MDgxVEpVRUVBOUZVUVpLJmVuY3J5cHRlZEFkSWQ9QTA1NDIxNTgxQkoyTU4xSFVHWjczJndpZGdldE5hbWU9c3BfYXRmJmFjdGlvbj1jbGlja1JlZGlyZWN0JmRvTm90TG9nQ2xpY2s9dHJ1ZQ==
+| 220 resistor          | 4        | $0.06      | https : //www.amazon.com/EDGELEC-Resistor-Tolerance-Multiple-Resistance/dp/B07QK9ZBVZ/ref=sr_1_1_sspa?crid=1YAPV52RIJS85&keywords=220+resistor&qid=1640705414&sprefix=220+resistor%2Caps%2C89&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEyWENOUjBWSU1DWTFJJmVuY3J5cHRlZElkPUEwOTUzNDQ3MVExUVYxMDVKVVo2VSZlbmNyeXB0ZWRBZElkPUEwMDc1MDg5MUg0Q0tGUFU5SVlaSiZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=
+| SN74AHCT245N shifter  | 1        | $0.58      | https : //www.ti.com/store/ti/en/p/product/?p=SN74AHCT245N
+| 0.1uF decoupling caps | 2        | $0.07      | https : //www.amazon.com/dp/B08B3VCK42/ref=redir_mobile_desktop?_encoding=UTF8&aaxitk=6b243bf147f5558c994669f35c564b46&hsa_cr_id=5076138280701&pd_rd_plhdr=t&pd_rd_r=bac4cbd4-8db1-4882-989b-fc0e9aa491cb&pd_rd_w=eU5nX&pd_rd_wg=W0uzO&ref_=sbx_be_s_sparkle_mcd_asin_0_img
+|===
+
+Total cost is $23.80 USD.
+
+=== Help
+This document is written in the _AsciiDoc_ format, a markup language to describe documents.
+If you need help you can search the http : //www.methods.co.nz/asciidoc[AsciiDoc homepage]
+or consult the http : //powerman.name/doc/asciidoc[AsciiDoc cheatsheet]
