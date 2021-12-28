@@ -58,6 +58,8 @@ one provided by the IoT cloud.
 
 == Step 2 : Assemble the circuit
 
+See schematics.png.
+
 Photo of assembled circuit: https://photos.app.goo.gl/EMdDA4vWgxhGjG2t7
 
 The circuit assumes you will have a 12V DC power supply for your WS2811 LED strip(s).  I conected ground, +12V
